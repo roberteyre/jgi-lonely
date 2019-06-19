@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Matching up to find the cause of loneliness</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="/Users/fs13378/.pandoc/GitHub3.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header>
+<h1 class="title">Matching up to find the cause of loneliness</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#aim">Aim</a></li>
+<li><a href="#matching">Matching</a><ul>
+<li><a href="#quality-of-matching-imbalance">Quality of matching (Imbalance)</a></li>
+</ul></li>
+<li><a href="#results">Results</a><ul>
+<li><a href="#percentage-of-patients-younger-than-25">Percentage of patients younger than 25</a></li>
+<li><a href="#percentage-of-patients-older-than-80">Percentage of patients older than 80</a></li>
+<li><a href="#multiple-deprivation-index">Multiple deprivation index</a></li>
+<li><a href="#incoming-migrations-to-the-local-authority-of-the-gp-z-score">Incoming migrations to the local authority of the GP (z-score)</a></li>
+<li><a href="#number-of-nearby-schools-z-score">Number of nearby schools (z-score)</a></li>
+<li><a href="#rural-urban-classification">Rural-urban classification</a></li>
+</ul></li>
+<li><a href="#conclusions">Conclusions</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</nav>
+<!--
+- [project folder](file:///Users/fs13378/sda3/projects/loneliness)
+- [relevant webpages](https://www.one-tab.com/page/zPFWZK01Rg6oUV4UzR5YmA)
+
+- [conditional ignorability explained](http://www.fragilefamilieschallenge.org/causal-inference/) and [slides](http://web.mit.edu/teppei/www/teaching/Keio2016/03obs.pdf)
+
+---
+
+# Blog post
+
+## [Title ???]
+-->
+<h2 id="aim">Aim</h2>
+<p>The Jean Golding Institute’s loneliness data challenge asks to investigate the relationship between the movement of people for education and loneliness. Our team set out to understand if there is significant evidence of the presence of causal relationships between loneliness and variables related to education and movement. We use matching to detect the presence of causal relationships between variables and demonstrate how it could be used to dismiss non-significant relationships that otherwise seem significant using basic statistical techniques.</p>
+<h2 id="matching">Matching</h2>
+<p>Matching <span class="citation" data-cites="stuart2010matching">[1]</span> is a method for designing experiments to discover causal effects, for example to assign patients to treatment and control groups in randomised control trials aimed at testing if a drug is effective. It can also be used for inferring the presence of causal relationships in observational studies where it is not possible to make interventions, for example when patients are free to decide whether or not to take the drug, provided that we can observe all the variables (covariates) that influence both the <em>causal</em> variable (taking the drug) and the <em>outcome</em> variable (recovery).</p>
+<p>The general idea behind matching is to consider pairs of subjects that are similar in every aspect except for the value of the causal variable and determine if any difference observed in the value of the outcome variable is significant. For example, to find out if there is a causal relationship between the presence of schools close to a GP (<em>causal</em> variable) and loneliness (<em>outcome</em> variable) we proceed as follows:</p>
+<ol type="1">
+<li><p>Transform the causal variable, that in general can be discrete or continuous, into a binary variable. To this end, we assign the value 1 to all GPs where the number of schools (standardised) is larger than the median and 0 to all other GPs.</p></li>
+<li><p>Consider all variables in our datasets that may affect the causal and the outcome variables. These variables are called <em>confounders</em> and those we consider in our study are listed in the Table below.</p>
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 40%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Definition</th>
+<th>Data source</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Number of nearby schools (z-score)</td>
+<td>z-score of the total number of schools in the postcodes within 10km of the GP’s postcode</td>
+<td><a href="https://www.compare-school-performance.service.gov.uk/download-data">GOV.UK</a></td>
+</tr>
+<tr class="even">
+<td>Multiple deprivation index</td>
+<td>the official measure of relative deprivation for small areas in England</td>
+<td>Provided by the Office of National Statistics</td>
+</tr>
+<tr class="odd">
+<td>Incoming migrants per capita (z-score)</td>
+<td>z-score of the total number of incoming migrants in the GP’s local authority divided by the resident population</td>
+<td><a href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/internationalmigration">ONS</a></td>
+</tr>
+<tr class="even">
+<td>Rural-urban index</td>
+<td>Category defining the urbanisation of an area.</td>
+<td>Provided by the Office of National Statistics</td>
+</tr>
+<tr class="odd">
+<td>Fraction of patients 0-9</td>
+<td>percentage of the GP patients with age 0-9</td>
+<td><a href="https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-sets">NHS Digital</a></td>
+</tr>
+<tr class="even">
+<td>Fraction of patients 10-24</td>
+<td>percentage of the GP patients with age 10-24</td>
+<td><a href="https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-sets">NHS Digital</a></td>
+</tr>
+<tr class="odd">
+<td>Fraction of patients 25-49</td>
+<td>percentage of the GP patients with age 25-49</td>
+<td><a href="https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-sets">NHS Digital</a></td>
+</tr>
+<tr class="even">
+<td>Fraction of patients 50-79</td>
+<td>percentage of the GP patients with age 50-79</td>
+<td><a href="https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-sets">NHS Digital</a></td>
+</tr>
+<tr class="odd">
+<td>Fraction of patients 80+</td>
+<td>percentage of the GP patients with age 80+</td>
+<td><a href="https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-sets">NHS Digital</a></td>
+</tr>
+</tbody>
+</table>
+<p>The figure below shows the histograms of the confounders when the causal variable is the fraction of patients older than 80: blue bars denote the GPs with many elderly patients (group 1), red bars denote the GPs with fewer (group 0).</p>
+<p><img src="/fig/pre_match_hist.png" /></p></li>
+<li><p>Perform the matching: we pair up GPs with many schools (those with causal variable = 1) with GPs with few schools (causal variable = 0). Here we compare two matching methods, described in the following sections: <a href="#mahalanobis-distance-matching">Mahalanobis Distance Matching</a> and <a href="#propensity-score-matching">Propensity Score Matching</a>.</p></li>
+<li><p>Determine if the average loneliness of the matched GPs with many schools is significantly different from the loneliness of the matched GPs with few schools. Mathematically, this difference is quantified with the Average Treatment Effect: <span class="math inline">\({\rm ATE} = \sum_i^N ( y_i(1) - y_i(0) ) / N\)</span>, where <span class="math inline">\(y_i(1)\)</span> is the value of the outcome variable (loneliness) of the GP with many schools in pair <span class="math inline">\(i\)</span> and <span class="math inline">\(y_i(0)\)</span> is the loneliness of the matched GP with few schools. A causal relationship is present if the ATE is significantly different from zero according to the t-test.</p></li>
+</ol>
+<p>Here are the descriptions of the matching algorithms we considered.</p>
+<h4 id="mahalanobis-distance-matching">Mahalanobis Distance Matching</h4>
+<p>Mahalanobis Distance Matching is a popular kind of Nearest Neighbour Matching, which is one of the most intuitive matching methods. In Nearest Neighbour Matching a distance function is defined in the space of the covariates and each unit with causal variable = 1 is matched with the closest unit with causal variable = 0. In Mahalanobis Distance Matching the Mahalanobis distance is used, which is defined as <span class="math inline">\(d^{\rm MDM}_{ij} = \sqrt{(x_i -x_j)^T S^{-1} (x_i -x_j)}\)</span>, where <span class="math inline">\(x_i\)</span> is the covariate vector of GP <span class="math inline">\(i\)</span> and <span class="math inline">\(S\)</span> is the covariance matrix. If the distance is larger than a predefined threshold, called caliper, the match quality is considered poor and we discard the pair. For MDM we set the caliper at <span class="math inline">\(1\)</span> in order to exclude matched pairs with distances larger than the median. The figure below shows an example of Mahalanobis Distance Matching when the causal variable is the fraction of patients who are older than 80.</p>
+<figure>
+<img src="./fig/pre_match_hist_mdm.png" alt="The marginal distributions of all covariates for the two values of the causal variable." /><figcaption>The marginal distributions of all covariates for the two values of the causal variable.</figcaption>
+</figure>
+<h4 id="propensity-score-matching">Propensity Score Matching</h4>
+<p>In Propensity Score Matching <span class="citation" data-cites="rosenbaum1983central">[2]</span> GPs are matched according to a single variable, the <em>propensity score</em> <span class="math inline">\(\pi\)</span>, which represents the probability that a GP would have causal variable equal to 1, given the covariates. The propensity score is computed using a probabilistic model (here we consider logistic regression) to infer the value of the causal variable given the covariates. Once the propensity score of each GP has been estimated, we use Nearest Neighbour Matching to pair each GP with causal variable equal to 1 to the GP causal variable equal to 0 that has the closest propensity score. For MDM we set the caliper at <span class="math inline">\(0.005\)</span> in order to exclude matched pairs with large distances. The figure below shows an example of Propensity Score Matching when the causal variable is the fraction of patients who are older than 80.</p>
+<figure>
+<img src="./fig/pre_match_hist_psm.png" alt="The marginal distributions of all covariates for the two values of the causal variable." /><figcaption>The marginal distributions of all covariates for the two values of the causal variable.</figcaption>
+</figure>
+<h3 id="quality-of-matching-imbalance">Quality of matching (Imbalance)</h3>
+<p>The validity of inference drawn using matching methods depends on the quality of the matching, namely if we were able to find enough pairs of GPs with different values of causal variable and very similar covariates. To assess the goodness of the matching we can compare the distributions of covariates for the two elements of the pairs and measure their distance: high distance, also known as <em>imbalance</em>, means the matching is far from a perfect matching where each GP is paired with a GP with exactly the same covariate values.<br />
+One measure of imbalance is the average distance in the covariate space between the GPs in each pair: <span class="math display">\[
+I = \frac{1}{n}\sum_{c=1}^n \frac{|\delta_c|}{\sigma_c}
+\]</span> where <span class="math inline">\(\delta_c\)</span> is the difference between the means of covariate <span class="math inline">\(c\)</span> in group 1 and group 0 and <span class="math inline">\(\sigma_c\)</span> is the standard deviation of covariate <span class="math inline">\(c\)</span> across all groups.</p>
+<h2 id="results">Results</h2>
+<p>Here are the causal variables we consider:</p>
+<ul>
+<li>Percentage of patients younger than 25</li>
+<li>Percentage of patients older than 80</li>
+<li>Number of nearby schools (z-score)</li>
+<li>Multiple deprivation index</li>
+<li>Incoming migrations to the local authority of the GP (z-score)</li>
+<li>Rural-urban classification</li>
+</ul>
+<p>These are the statistics we measure:</p>
+<ul>
+<li>Mean difference (ATE) of the outcome variable (loneliness score) between group 1 and group 0.</li>
+<li>t-test for the equivalence of means between the two groups, with two-tailed p-value rounded at four decimal places (a star denotes significance at 0.05).</li>
+<li>Imbalance <span class="math inline">\(I\)</span> (absolute standardised difference).</li>
+</ul>
+<h3 id="percentage-of-patients-younger-than-25">Percentage of patients younger than 25</h3>
+<ul>
+<li>Before matching, the fraction of patients between the age of 10 and 24 has a negative ATE (Mean difference) significantly different from zero, which means that GPs with young patients are less lonely.</li>
+<li>After matching, the ATE is still negative and significant, confirming that the percentage of young people has an impact on the loneliness score of a GP.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Mean difference</th>
+<th>t-test (p-val)</th>
+<th>imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before matching</td>
+<td>-0.507198</td>
+<td>0.0*</td>
+<td>0.443187</td>
+</tr>
+<tr class="even">
+<td>MDM</td>
+<td>-0.141328</td>
+<td>0.0*</td>
+<td>0.0592969</td>
+</tr>
+<tr class="odd">
+<td>PSM</td>
+<td>-0.413792</td>
+<td>0.0*</td>
+<td>0.219847</td>
+</tr>
+</tbody>
+</table>
+<h3 id="percentage-of-patients-older-than-80">Percentage of patients older than 80</h3>
+<ul>
+<li>Before matching, the fraction of patients older than 80 has a positive ATE (Mean difference) significantly different from zero, which means that GPs with older patients are more lonely.</li>
+<li>After matching, the ATE is still positive and significant, confirming that the percentage of elderly people has an impact on the loneliness score of a GP.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Mean difference</th>
+<th>t-test (p-val)</th>
+<th>imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before matching</td>
+<td>0.375078</td>
+<td>0.0*</td>
+<td>0.77528</td>
+</tr>
+<tr class="even">
+<td>MDM</td>
+<td>0.107619</td>
+<td>0.0034*</td>
+<td>0.103424</td>
+</tr>
+<tr class="odd">
+<td>PSM</td>
+<td>0.281601</td>
+<td>0.0*</td>
+<td>0.0991807</td>
+</tr>
+</tbody>
+</table>
+<h3 id="multiple-deprivation-index">Multiple deprivation index</h3>
+<ul>
+<li>Before matching, the index of multiple deprivation the ATE (Mean difference) is not significantly different from zero, which means that deprivation has no impact on loneliness.</li>
+<li>After matching, the ATE is not significantly different from zero, confirming that deprivation has no impact on the loneliness score of a GP.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Mean difference</th>
+<th>t-test (p-val)</th>
+<th>imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before matching</td>
+<td>-0.0321828</td>
+<td>0.4842</td>
+<td>0.0249403</td>
+</tr>
+<tr class="even">
+<td>MDM</td>
+<td>-0.0519399</td>
+<td>0.0983</td>
+<td>0.00111657</td>
+</tr>
+<tr class="odd">
+<td>PSM</td>
+<td>-0.0587068</td>
+<td>0.0702</td>
+<td>0.0104227</td>
+</tr>
+</tbody>
+</table>
+<h3 id="incoming-migrations-to-the-local-authority-of-the-gp-z-score">Incoming migrations to the local authority of the GP (z-score)</h3>
+<ul>
+<li>Before matching, the number of incoming migrations has a negative ATE (Mean difference) significantly different from zero, which means that GPs in areas with many incoming movers are less lonely.</li>
+<li>After matching, the ATE is no longer significant for both matching methods, suggesting that incoming migration has no impact on the loneliness score of a GP.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Mean difference</th>
+<th>t-test (p-val)</th>
+<th>imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before matching</td>
+<td>-0.226836</td>
+<td>0.0*</td>
+<td>0.355262</td>
+</tr>
+<tr class="even">
+<td>MDM</td>
+<td>-0.0274637</td>
+<td>0.3963</td>
+<td>0.00914154</td>
+</tr>
+<tr class="odd">
+<td>PSM</td>
+<td>-0.00175028</td>
+<td>0.957</td>
+<td>0.0208283</td>
+</tr>
+</tbody>
+</table>
+<h3 id="number-of-nearby-schools-z-score">Number of nearby schools (z-score)</h3>
+<ul>
+<li>Before matching, the number of schools nearby a GP has a negative ATE (Mean difference) significantly different from zero, which means that GPs in areas with many schools are less lonely.</li>
+<li>After matching, the ATE is still significant for both matching methods, but with opposite ATEs: positive for PSM and negative for MDM. This contradictory result does not allow us to draw a conclusion regarding the effect of the number of schools on the loneliness score of an area.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Mean difference</th>
+<th>t-test (p-val)</th>
+<th>imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before matching</td>
+<td>-0.696231</td>
+<td>0.0*</td>
+<td>0.637839</td>
+</tr>
+<tr class="even">
+<td>MDM</td>
+<td>-0.237516</td>
+<td>0.0*</td>
+<td>0.0403755</td>
+</tr>
+<tr class="odd">
+<td>PSM</td>
+<td>0.0932033</td>
+<td>0.0063*</td>
+<td>0.083832</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rural-urban-classification">Rural-urban classification</h3>
+<ul>
+<li>Before matching, the level of urbanisation has a negative ATE (Mean difference) significantly different from zero, which means that GPs in urban areas are less lonely.</li>
+<li>After matching, the ATE is still negative and significant, confirming that the level of urbanisation has an impact on the loneliness score of a GP.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th>Mean difference</th>
+<th>t-test (p-val)</th>
+<th>imbalance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Before matching</td>
+<td>-0.778768</td>
+<td>0.0*</td>
+<td>0.619803</td>
+</tr>
+<tr class="even">
+<td>MDM</td>
+<td>-0.497313</td>
+<td>0.0*</td>
+<td>0.113529</td>
+</tr>
+<tr class="odd">
+<td>PSM</td>
+<td>-0.458987</td>
+<td>0.0*</td>
+<td>0.10199</td>
+</tr>
+</tbody>
+</table>
+<h2 id="conclusions">Conclusions</h2>
+<p>The matching technique showed us that simple statistical analysis of group differences can lead to misleading conclusions regarding the influence of some variables on the outcome variable (e.g. incoming migrants).</p>
+<p>This approach, however, has several limitations. First, it is based on assumptions that are difficult to test. To correctly estimate the Average Treatment Effect two assumptions must hold when performing the matching:</p>
+<ol type="1">
+<li>there shouldn’t be unmeasured confounders, i.e. we should consider all variables that can influence both the causal and the outcome variables,</li>
+<li>we should not consider variables that are influenced by the causal variable.</li>
+</ol>
+<p>The first assumption is very hard to verify, given that generally we cannot know all the variables that may have an influence on the variables under consideration. The second assumption is also difficult to test in the present case for the same reason, as it is not clear what control variables could be influenced by the causal variable.</p>
+<p>Even if the assumptions necessary to establish causal relationship are not tested, matching can still allow to discover more meaningful relationship between variables in observational studies because it enables to make meaningful comparisons between similar units, as opposed to simple correlation studies.</p>
+<h2 id="references">References</h2>
+<!--
+
+https://search.crossref.org/?q=grimsley+Developing+a+Loneliness+Prescription+Index | Crossref Metadata Search
+https://scholar.google.co.uk/scholar?hl=en&as_sdt=0%2C5&q=Matching+methods+for+causal+inference%3A+A+review+and+a+look+forward&btnG= | Matching methods for causal inference: A review and... - Google Scholar
+https://www.machinelearningplus.com/statistics/mahalanobis-distance/ | Mahalonobis Distance - Understanding the math with examples (python) – Machine Learning Plus
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.mahalanobis.html | scipy.spatial.distance.mahalanobis — SciPy v1.3.0 Reference Guide
+https://en.wikipedia.org/wiki/Mahalanobis_distance | Mahalanobis distance - Wikipedia
+https://economics.mit.edu/files/11867 | ecta4188.dvi
+https://gking.harvard.edu/files/gking/files/psnot.pdf | Why Propensity Scores Should Not Be Used for Matching
+https://www.youtube.com/watch?v=rBv39pK1iEs&feature=youtu.be | (15) Gary King, "Why Propensity Scores Should Not Be Used for Matching" - YouTube
+http://blog.echen.me/2014/08/15/propensity-modeling-causal-inference-and-discovering-drivers-of-growth/ | Propensity Modeling, Causal Inference, and Discovering Drivers of Growth
+https://sejdemyr.github.io/r-tutorials/statistics/tutorial8.html | R Tutorial 8: Propensity Score Matching
+https://datasciencecampus.ons.gov.uk/developing-a-loneliness-prescription-index/ | Developing a Loneliness Prescription Index | Data Science Campus
+http://www.bristol.ac.uk/golding/get-involved/competitions/loneliness-and-movement-for-education-competition/ | Loneliness and movement for education competition | Jean Golding Institute | University of Bristol
+file:///Users/fs13378/loneliness.html | loneliness challenge JGI
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2943670/ | Matching methods for causal inference: A review and a look forward
+http://www.fragilefamilieschallenge.org/causal-inference/ | Causal inference | Fragile Families Challenge
+
+
+
+easily satisfied when the causal variable denotes a treatment or an intervention that happened at a particular time, for example in drug testing, because it is sufficient to only consider confounders before the treatment. 
+
+-->
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax:{inlineMath:[['$','$'], ['\\(','\\)']]}});</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<div id="refs" class="references">
+<div id="ref-stuart2010matching">
+<p>[1] Stuart, E. A. Matching methods for causal inference: A review and a look forward. <em>Statistical science: a review journal of the Institute of Mathematical Statistics</em> <strong>25,</strong> 1 [2010].</p>
+</div>
+<div id="ref-rosenbaum1983central">
+<p>[2] Rosenbaum, P. R. &amp; Rubin, D. B. The central role of the propensity score in observational studies for causal effects. <em>Biometrika</em> <strong>70,</strong> 41–55 [1983].</p>
+</div>
+</div>
+</body>
+</html>
