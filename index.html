@@ -140,7 +140,7 @@
 <p>The validity of inference drawn using matching methods depends on the quality of the matching, namely if we were able to find enough pairs of GPs with different values of causal variable and very similar covariates. To assess the goodness of the matching we can compare the distributions of covariates for the two elements of the pairs and measure their distance: high distance, also known as <em>imbalance</em>, means the matching is far from a perfect matching where each GP is paired with a GP with exactly the same covariate values.<br />
 One measure of imbalance is the average distance in the covariate space between the GPs in each pair: <span class="math display">\[
 I = \frac{1}{n}\sum_{c=1}^n \frac{|\delta_c|}{\sigma_c}
-\]</span> where <span class="math inline">\(\delta_c\)</span> is the difference between the means of covariate <span class="math inline">\(c\)</span> in group 1 and group 0 and <span class="math inline">\(\sigma_c\)</span> is the standard deviation of covariate <span class="math inline">\(c\)</span> across all groups.</p>
+\]</span> where <span class="math inline">\(\delta_c\)</span> is the sum of the absolute standardised difference of all covariates between the two groups: <span class="math inline">\(c\)</span> in group 1 and group 0 and <span class="math inline">\(\sigma_c\)</span> is the standard deviation of covariate <span class="math inline">\(c\)</span> across all groups.</p>
 <h2 id="results">Results</h2>
 <p>Here are the causal variables we consider:</p>
 <ul>
